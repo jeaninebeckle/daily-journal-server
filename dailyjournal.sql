@@ -3,6 +3,7 @@ CREATE TABLE `JournalEntries` (
   `concept` TEXT NOT NULL,
   `entry` TEXT NOT NULL,
   `date` INTEGER NOT NULL,
+  `moodId` INTEGER NOT NULL,
   FOREIGN KEY(`moodId`) REFERENCES `Moods`(`id`)
 );
 
@@ -20,3 +21,11 @@ INSERT INTO `JournalEntries` VALUES (null, '1234', '123', 1598458543321, 1);
 INSERT INTO `JournalEntries` VALUES (null, 'abc', '123', 1598458548239, 2);
 INSERT INTO `JournalEntries` VALUES (null, 'Delete', 'Now Deleting', 1598458559152, 1);
 INSERT INTO `JournalEntries` VALUES (null, 'ANGRY', 'fgfgdfg', 1598557358781, 3);
+
+SELECT
+    a.id,
+    a.concept,
+    a.entry,
+    a.date,
+    a.moodId
+FROM journalentries a
