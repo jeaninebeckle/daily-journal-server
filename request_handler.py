@@ -1,7 +1,8 @@
 import json
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from entries import get_all_entries, get_single_entry
+from entries import get_all_entries, get_single_entry, delete_entry
+from moods import get_single_mood, get_all_moods
 
 class HandleRequests(BaseHTTPRequestHandler):
     def parse_url(self, path):
@@ -27,13 +28,12 @@ class HandleRequests(BaseHTTPRequestHandler):
             try:
                 id = int(path_params[2])
             except IndexError:
-                pass  # No route parameter exists: /animals
+                pass  
             except ValueError:
-                pass  # Request had trailing slash: /animals/
+                pass  
 
             return (resource, id)
 
-     # Here's a class function
     def _set_headers(self, status):
         self.send_response(status)
         self.send_header('Content-type', 'application/json')
@@ -56,16 +56,20 @@ class HandleRequests(BaseHTTPRequestHandler):
                     response = f"{get_single_entry(id)}"
                 else:
                     response = f"{get_all_entries()}"
+            elif resource == "moods":
+                if id is not None:
+                    response = f"{get_single_mood(id)}"
+                else:
+                    response = f"{get_all_moods()}"
 
         elif len(parsed) == 3:
             ( resource, key, value ) = parsed
 
         self.wfile.write(response.encode())
 
-    # Here's a method on the class that overrides the parent's method.
-    # It handles any POST request.
+
     def do_POST(self):
-        # Set response code to 'Created'
+
         self._set_headers(201)
 
         content_len = int(self.headers.get('content-length', 0))
@@ -74,16 +78,31 @@ class HandleRequests(BaseHTTPRequestHandler):
         self.wfile.write(response.encode())
 
 
-    # Here's a method on the class that overrides the parent's method.
-    # It handles any PUT request.
     def do_PUT(self):
         self.do_POST()
 
+    def do_DELETE(self):
+        self._set_headers(204)
 
-# This function is not inside the class. It is the starting
-# point of this application.
+        (resource, id) = self.parse_url(self.path)
+
+        if resource == "entries":
+            delete_entry(id)
+        # elif resource == "moods":
+        #     delete_mood(id)
+
+        self.wfile.write("".encode())
+
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+        self.send_header('Access-Control-Allow-Headers', 'X-Requested-With')
+        self.end_headers()
+
+
+
 def main():
     host = ''
     port = 8088
     HTTPServer((host, port), HandleRequests).serve_forever()
-

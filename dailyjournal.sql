@@ -29,3 +29,11 @@ SELECT
     a.date,
     a.moodId
 FROM journalentries a
+
+SELECT
+    a.id,
+    a.label
+FROM moods a
+
+DELETE FROM JournalEntries
+WHERE id=2
