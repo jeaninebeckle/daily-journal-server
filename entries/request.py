@@ -37,8 +37,6 @@ def get_single_entry(id):
         conn.row_factory = sqlite3.Row
         db_cursor = conn.cursor()
 
-        # Use a ? parameter to inject a variable's value
-        # into the SQL statement.
         db_cursor.execute("""
         SELECT
             a.id,
@@ -55,3 +53,12 @@ def get_single_entry(id):
         entry = Entry(data['id'], data['concept'], data['entry'], data['date'], data['moodId'])
 
         return json.dumps(entry.__dict__)
+
+def delete_entry(id):
+    with sqlite3.connect("./dailyjournal.db") as conn:
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        DELETE FROM journalentries
+        WHERE id = ?
+        """, (id, ))
