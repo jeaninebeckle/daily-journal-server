@@ -1,7 +1,7 @@
 import json
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from entries import get_all_entries, get_single_entry, delete_entry
+from entries import get_all_entries, get_single_entry, delete_entry, get_entries_by_search
 from moods import get_single_mood, get_all_moods
 
 class HandleRequests(BaseHTTPRequestHandler):
@@ -64,6 +64,8 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         elif len(parsed) == 3:
             ( resource, key, value ) = parsed
+            if key == "q" and resource == "entries":
+                response = get_entries_by_search(value)
 
         self.wfile.write(response.encode())
 
