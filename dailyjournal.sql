@@ -37,3 +37,12 @@ FROM moods a
 
 DELETE FROM JournalEntries
 WHERE id=2
+
+SELECT
+    c.id,
+    c.concept,
+    c.entry,
+    c.date,
+    c.moodId
+FROM journalentries c
+WHERE term LIKE %searchTerm%
