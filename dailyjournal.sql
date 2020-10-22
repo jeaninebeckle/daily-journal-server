@@ -46,3 +46,14 @@ SELECT
     c.moodId
 FROM journalentries c
 WHERE term LIKE %searchTerm%
+
+SELECT
+	j.id,
+	j.concept,
+	j.entry,
+	j.date,
+	j.moodId,
+	m.label
+FROM journalentries j
+JOIN moods m
+	ON m.id = j.moodId
