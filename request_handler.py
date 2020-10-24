@@ -1,7 +1,7 @@
 import json
 
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from entries import get_all_entries, get_single_entry, delete_entry, get_entries_by_search
+from entries import get_all_entries, get_single_entry, delete_entry, get_entries_by_search, create_journal_entry
 from moods import get_single_mood, get_all_moods
 
 class HandleRequests(BaseHTTPRequestHandler):
@@ -73,11 +73,19 @@ class HandleRequests(BaseHTTPRequestHandler):
     def do_POST(self):
 
         self._set_headers(201)
-
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
-        response = f"received post request:<br>{post_body}"
-        self.wfile.write(response.encode())
+
+        # Convert JSON string to a Python dictionary
+        post_body = json.loads(post_body)
+
+        # Parse the URL
+        (resource, id) = self.parse_url(self.path)
+
+        if resource == "entries":
+            new_entry = None
+            new_entry = create_journal_entry(post_body)
+            self.wfile.write(f"{new_entry}".encode())
 
 
     def do_PUT(self):
