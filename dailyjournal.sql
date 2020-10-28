@@ -57,3 +57,7 @@ SELECT
 FROM journalentries j
 JOIN moods m
 	ON m.id = j.moodId
+
+UPDATE journalentries
+SET concept = "testing again"
+WHERE id = 1
