@@ -12,6 +12,19 @@ CREATE TABLE `Moods` (
   `label` TEXT NOT NULL
 );
 
+CREATE TABLE `Tags` (
+	`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	`name` TEXT NOT NULL
+);
+
+CREATE TABLE `EntryTags` (
+	`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	`entry_id` INTEGER NOT NULL,
+	`tag_id` INTEGER NOT NULL,
+	FOREIGN KEY(`entry_id`) REFERENCES `JournalEntries`(`id`),
+	FOREIGN KEY(`tag_id`) REFERENCES `Tags`(`id`)
+);
+
 INSERT INTO `Moods` VALUES (null, 'Happy');
 INSERT INTO `Moods` VALUES (null, 'Sad');
 INSERT INTO `Moods` VALUES (null, 'Angry');
@@ -21,6 +34,11 @@ INSERT INTO `JournalEntries` VALUES (null, '1234', '123', 1598458543321, 1);
 INSERT INTO `JournalEntries` VALUES (null, 'abc', '123', 1598458548239, 2);
 INSERT INTO `JournalEntries` VALUES (null, 'Delete', 'Now Deleting', 1598458559152, 1);
 INSERT INTO `JournalEntries` VALUES (null, 'ANGRY', 'fgfgdfg', 1598557358781, 3);
+
+INSERT INTO `Tags` VALUES (null, 'Work');
+INSERT INTO `Tags` VALUES (null, 'Travel');
+INSERT INTO `Tags` VALUES (null, 'Good Day');
+INSERT INTO `Tags` VALUES (null, 'Bad Day');
 
 SELECT
     a.id,
@@ -61,3 +79,15 @@ JOIN moods m
 UPDATE journalentries
 SET concept = "testing again"
 WHERE id = 1
+
+SELECT * FROM EntryTags
+
+
+SELECT
+	t.id,
+	t.name,
+	e.tag_id
+FROM tags t
+JOIN entrytags e
+	ON t.id = e.tag_id
+WHERE e.entry_id = 14
