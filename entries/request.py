@@ -3,6 +3,7 @@ import json
 
 from models.entry import Entry
 from models.mood import Mood
+from models.tag import Tag
 
 def get_all_entries():
     with sqlite3.connect("./dailyjournal.db") as conn:
@@ -36,6 +37,24 @@ def get_all_entries():
             entry.mood = mood.__dict__
             
             entries.append(entry.__dict__)
+
+            db_cursor.execute("""
+            SELECT
+                t.id,
+                t.name,
+                e.tag_id
+            FROM tags t
+            JOIN entrytags e
+                ON t.id = e.tag_id
+            WHERE e.entry_id = ?
+            """, (row['id'], ))
+
+            tagset = db_cursor.fetchall()
+            tags = []
+            for tag in tagset:
+                each_tag = Tag(tag['id'], tag['name'])
+                tags.append(each_tag.__dict__)
+            entry.tags = tags
 
     return json.dumps(entries)
 
@@ -96,8 +115,10 @@ def get_entries_by_search(term):
     return json.dumps(entries)
 
 def create_journal_entry(new_entry):
+    print(new_entry)
     with sqlite3.connect("./dailyjournal.db") as conn:
         db_cursor = conn.cursor()
+        #a list is brackets, like an array in JS
 
         db_cursor.execute("""
         INSERT INTO journalentries
@@ -105,20 +126,21 @@ def create_journal_entry(new_entry):
         VALUES
             ( ?, ?, ?, ?);
         """, (new_entry['concept'],
-              new_entry['entry'], new_entry['date'],
-              new_entry['moodId'], ))
+              new_entry['entry'], new_entry['date'], new_entry['moodId']))
 
-        # The `lastrowid` property on the cursor will return
-        # the primary key of the last thing that got added to
-        # the database.
         id = db_cursor.lastrowid
 
-        # Add the `id` property to the entry dictionary that
-        # was sent by the client so that the client sees the
-        # primary key in the response.
         new_entry['id'] = id
 
-
+        if new_entry['tags']:
+            for tag in new_entry['tags']:
+                db_cursor.execute("""
+                INSERT INTO EntryTags
+                    ( entry_id, tag_id )
+                VALUES
+                    ( ?, ? );
+                """, (id, tag, ))
+        
     return json.dumps(new_entry)
 
 def update_entry(id, new_entry):
